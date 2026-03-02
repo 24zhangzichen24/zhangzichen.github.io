@@ -7,30 +7,30 @@
 
 // Game Configuration
 let y = 0;
-let x
-let blockWidth
-let blockHeight
+let x;
+let blockWidth;
+let blockHeight;
 let speed;
 let drop;
-let strenth
+let strenth;
 let tracks = 6;
 let keys = ['S', 'D', 'F', 'J', 'K', 'L'];
 let hitZoneY;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  noStroke()
+  noStroke();
   speed = height/60;  
   hitZoneY = height - 100;
-  x=0
-  strenth= 1
+  x=0;
+  strenth= 1;
 }
 
 
 function draw() {
   background(40);
-  dropping()
-  drawTracks()
+  dropping();
+  drawTracks();
 }
 
 
@@ -41,22 +41,23 @@ function windowResized() {
 
 
 function dropping(){
-  drop = (y < height)
+  drop = (y < height) ;
   if (drop){
-    strenth *= 1.004
+    strenth *= 1.004;
     singleBlock();
   }
   else{
-    x =width/6 * int(random(0,5)) 
-    y=0  
-    strenth= 1
+    missHit();
+    x =width/6 * int(random(0,5)) ;
+    y=0 ;
+    strenth= 1;
   }
 }
 
 
 function singleBlock() {
   y+=speed;
-  fill('#5d8aa8');
+  blockColor();
   rect(x,y,width/6,width/18,20,20);
   // quad(x*-strenth,y*strenth,(x+200)*strenth,y*strenth,
   //      (x+200)*-strenth,(y+100)*strenth,x*strenth,(y+100)*strenth);
@@ -91,6 +92,25 @@ function drawTracks() {
     text(keys[i], (i * laneWidth) + (laneWidth / 2), hitZoneY + 40);
   }
 }
+
+function blockColor(){
+  if (y > hitZoneY + 10){
+    fill('#5d8aa8');
+  }
+  else{
+    fill('#5d8aa8');
+  }
+}
+
+function missHit(){
+  for (let i = height; i < height-100; i--) {
+    fill(200, 200, 200, map(i, height, height-100, 255, 0));
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text("Miss!", width/2, i);
+  }
+}
+
 
 // Startup Page
 function mousePressed() {
