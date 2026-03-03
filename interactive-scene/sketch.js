@@ -9,6 +9,7 @@ let gravity;           // 加速度
 let tracks = 6;
 let keys = ['S', 'D', 'F', 'J', 'K', 'L'];
 let hitZoneY;
+let combo = 0
 let vanishingOffset = 0.25;
 let topY = 50;
 let missEffects = [];  // 存储所有正在播放的Miss动画
@@ -40,27 +41,25 @@ function windowResized() {
 }
 
 function checkHit(trackIsPressed){
-  if (currentY > hitZoneY+10 && currentY < hitZoneY+10){
-    if (trackIsPressed === currentTrack)
+  if (currentY > hitZoneY+20 && currentY < hitZoneY-20){
+    if (trackIsPressed === currentTrack){
       return 'hit'
   }
-  else {
-    return 'miss'
-  }
+  return 'miss'
 }
 
 function keyPressed(){
-  let presseskey = keys
-  let trackIsPressed = keys.indexOf(presseskey)
+  let pressed = key.toUpperCase();
+  let trackIsPressed = keys.indexOf(pressed);
 
   if (trackIsPressed !== -1){
-    let hitResult = checkHit(trackIsPressed)
+    let hitResult = checkHit(trackIsPressed);
     if (hitResult === 'hit'){
-      combo++
-      resetBlock()
-    }
-    else if (hitResult === 'miss'){
-      combo = 0 
+      combo++;
+      resetBlock();
+    } else {
+      combo = 0;
+      triggerMiss(trackIsPressed);
     }
   }
 }
