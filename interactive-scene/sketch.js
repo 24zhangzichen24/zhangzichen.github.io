@@ -29,6 +29,7 @@ function draw() {
   drawTracks();
   updateAndDrawBlock();
   drawMissEffects(); 
+  drawCombo();
 }
 
 function windowResized() {
@@ -37,14 +38,16 @@ function windowResized() {
   gravity = height / 1500;
 }
 
+// check if this is a good hit
 function checkHit(trackIsPressed){
-  if (y > hitZoneY+20 && y < hitZoneY-20){
+  if (y > hitZoneY - 50 && y < hitZoneY + 50){
     if (trackIsPressed === currentTrack){
-      return 'hit'
+      return 'hit';
+    }
   }
-  return 'miss'
+  return 'miss';
 }
-
+// get the key that the player is pressing
 function keyPressed(){
   let pressed = key.toUpperCase();
   let trackIsPressed = keys.indexOf(pressed);
@@ -60,7 +63,19 @@ function keyPressed(){
     }
   }
 }
+// show the combo number
+function drawCombo() {
+  if (combo <= 0) return;   
 
+  push();
+  textAlign(CENTER, CENTER);
+  textSize(72);
+  textStyle(BOLD);
+  fill(255, 255, 255, 90);  
+  text(combo + " COMBO", width / 2, height / 2);
+  pop();
+}
+// use map function and lerp function get the smooth change number between the top and bottom
 function getTotalWidthAtY(yPos) {
   let t = map(yPos, topY, height, 0, 1);
   let topTotalW = width * vanishingOffset;
@@ -69,6 +84,7 @@ function getTotalWidthAtY(yPos) {
   return lerp(topTotalW, bottomTotalW, t);
 }
 
+// get the center x position for each track that will use to draw the tracks and the block
 function getTrackCenterX(trackIndex, yPos) {
   let totalW = getTotalWidthAtY(yPos);
   let singleLaneW = totalW / tracks;
@@ -77,10 +93,12 @@ function getTrackCenterX(trackIndex, yPos) {
   return startX + (trackIndex + 0.5) * singleLaneW;
 }
 
+
 function updateAndDrawBlock() {
+  // dropping
   velocity += gravity;
   y += velocity;
-
+  
   if (y > height) {
     triggerMiss(currentTrack); 
     resetBlock();
@@ -95,7 +113,7 @@ function resetBlock() {
   velocity = height / 300; 
 }
 
-  
+  // use an array include dictionary to save every animation of missing
 function triggerMiss(trackIdx) {
   let startX = getTrackCenterX(trackIdx, height - 50);
   missEffects.push({
@@ -105,12 +123,12 @@ function triggerMiss(trackIdx) {
   });
 }
 
-
+// test animation of missing
 function drawMissEffects() {
   for (let i = missEffects.length - 1; i >= 0; i--) {
     let effect = missEffects[i];
     
-    // 动画逻辑：向上飘，透明度降低
+
     effect.y -= 1.5; 
     effect.alpha -= 4; 
 
@@ -181,6 +199,8 @@ function drawSingleBlock(trackIdx, currentY) {
   let bottomY = currentY;
   let topY_block = currentY - blockH;
 
+  if (topY_block < topY) return;
+
   let cx_bottom = getTrackCenterX(trackIdx, bottomY);
   let w_bottom = (getTotalWidthAtY(bottomY) / tracks) * 0.9;
   
@@ -199,7 +219,10 @@ function drawSingleBlock(trackIdx, currentY) {
     cx_bottom + w_bottom / 2, bottomY,
     cx_bottom - w_bottom / 2, bottomY
   );
-  
+
+  fill(255, 255, 255, 100);
+  let highlightH = blockH * 0.1;
+
   quad(
     cx_top - w_top / 2, topY_block,
     cx_top + w_top / 2, topY_block,
