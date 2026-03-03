@@ -39,6 +39,32 @@ function windowResized() {
   gravity = height / 1500;
 }
 
+function checkHit(trackIsPressed){
+  if (currentY > hitZoneY+10 && currentY < hitZoneY+10){
+    if (trackIsPressed === currentTrack)
+      return 'hit'
+  }
+  else {
+    return 'miss'
+  }
+}
+
+function keyPressed(){
+  let presseskey = keys
+  let trackIsPressed = keys.indexOf(presseskey)
+
+  if (trackIsPressed !== -1){
+    let hitResult = checkHit(trackIsPressed)
+    if (hitResult === 'hit'){
+      combo++
+      resetBlock()
+    }
+    else if (hitResult === 'miss'){
+      combo = 0 
+    }
+  }
+}
+
 function getTotalWidthAtY(yPos) {
   let t = map(yPos, topY, height, 0, 1);
   let topTotalW = width * vanishingOffset;
