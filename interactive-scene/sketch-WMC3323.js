@@ -9,7 +9,7 @@ let gravity;
 let tracks = 6;
 let keys = ['S', 'D', 'F', 'J', 'K', 'L'];
 let hitZoneY;
-let combo = 0;
+let combo = 0
 let vanishingOffset = 0.25;
 let topY = 50;
 let missEffects = [];  
@@ -57,8 +57,7 @@ function keyPressed(){
     if (hitResult === 'hit'){
       combo++;
       resetBlock();
-    }
-    else {
+    } else {
       combo = 0;
       triggerMiss(trackIsPressed);
     }
@@ -66,9 +65,7 @@ function keyPressed(){
 }
 // show the combo number
 function drawCombo() {
-  if (combo <= 0){
-    return 0;
-  }    
+  if (combo <= 0) return;   
 
   push();
   textAlign(CENTER, CENTER);
@@ -105,8 +102,7 @@ function updateAndDrawBlock() {
   if (y > height) {
     triggerMiss(currentTrack); 
     resetBlock();
-  }
-  else {
+  } else {
     drawSingleBlock(currentTrack, y);
   }
 }
@@ -117,7 +113,7 @@ function resetBlock() {
   velocity = height / 300; 
 }
 
-// use an array include dictionary to save every animation of missing
+  // use an array include dictionary to save every animation of missing
 function triggerMiss(trackIdx) {
   let startX = getTrackCenterX(trackIdx, height - 50);
   missEffects.push({
@@ -160,7 +156,7 @@ function drawTracks() {
     let bx = getTrackCenterX(i, height);
     let bw_bottom = getTotalWidthAtY(height) / tracks;
 
-    if (i % 2 === 0) {
+    if (i % 2 == 0) {
       fill(50, 60, 80);
     }
     else {
@@ -198,25 +194,22 @@ function drawTracks() {
 
 function drawSingleBlock(trackIdx, currentY) {
   let scale = map(currentY, topY, height, 0.2, 1);
-  let blockH = height / 15 * scale;
+  let blockH = (height / 15) * scale;
   
   let bottomY = currentY;
   let topY_block = currentY - blockH;
 
-  if (topY_block < topY) {
-    return;
-  }
+  if (topY_block < topY) return;
 
   let cx_bottom = getTrackCenterX(trackIdx, bottomY);
-  let w_bottom = getTotalWidthAtY(bottomY) / tracks * 0.9;
+  let w_bottom = (getTotalWidthAtY(bottomY) / tracks) * 0.9;
   
   let cx_top = getTrackCenterX(trackIdx, topY_block);
-  let w_top = getTotalWidthAtY(topY_block) / tracks * 0.9;
+  let w_top = (getTotalWidthAtY(topY_block) / tracks) * 0.9;
 
   if (bottomY > hitZoneY) {
     fill('#ff6b6b');
-  }
-  else {
+  } else {
     fill('#4ecdc4');
   }
 
