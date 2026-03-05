@@ -10,3 +10,4 @@
 
 ## Assignments
 -[Interactive](interactive-sence)
+-[Arrays and Object Notaion](array-object)
