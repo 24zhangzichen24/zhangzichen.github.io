@@ -1,61 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Three.js Cube</title>
-</head>
-<body>
-   
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-    }
-    </script>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script type="module">
-        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158/build/three.module.js';
-        const scene = new THREE.Scene();
-        console.log("Scene created:", scene);
+    <title>Sketch</title>
 
-        let camera, renderer;
-        let cubes = [];
+    <link rel="stylesheet" type="text/css" href="style.css">
 
-        function init() {
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        }
+    <!-- Linking to the main p5.js library, which allows your code to use all 
+       p5 functions. Using this version while developing your code allows p5 
+       to provide more Friendly Error Messages if you mess something up...-->
+    <script src="libraries/p5.js"></script>
 
-        function createCubes() {
-        const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        for (let i = 0; i < 10; i++) {
-            const cube = new THREE.Mesh(geometry, material);
-            cube.position.x = Math.random() * 10 - 5;
-            cube.position.y = Math.random() * 10 - 5;
-            cube.position.z = Math.random() * 10 - 5;
-            scene.add(cube);
-            cubes.push(cube);
-        }
-        }
+    <!-- Once your project is working completely, you can comment out the link
+       to p5.js above, and instead link to this minified version. The minified
+       version takes less space, and turns off Friendly Error Messages. This 
+       increases the speed of your program quite dramatically in some cases.-->
+    <!-- <script src="libraries/p5.min.js"></script> -->
 
-        function animate() {
-        requestAnimationFrame(animate);
-        cubes.forEach((cube) => {
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-        });
-        renderer.render(scene, camera);
-        }
+    <script src="libraries/p5.sound.min.js"></script>
+  </head>
 
-        init();
-        createCubes();
-        animate();
-    </script>
-</body>
+  <body>
+    <script src="sketch.js"></script>
+  </body>
 </html>
