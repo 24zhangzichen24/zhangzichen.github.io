@@ -12,4 +12,25 @@ function setup() {
 
 function draw() {
   background(220);
+  
+
+}
+
+function createEnemy() {
+  let enemy = {
+    x: random(width),
+    y: random(height),
+    size: random(20, 50),
+    color: color(random(255), random(255), random(255))
+  };
+  return enemy;
+}
+
+function createExp(){
+  let expDot = {
+    x: random(width),
+    y: random(height),
+    size: random(10, 30),
+  }
+  return expDot;
 }
