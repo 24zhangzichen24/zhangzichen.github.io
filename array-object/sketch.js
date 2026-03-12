@@ -12,8 +12,9 @@ let numEnemies = 5;
 let time = 0;
 let playerSpeed = 2;
 let enemysize = 20;
-let shootSpeed = 5;
+let shootSpeed = 0;
 let cooldown = 0;
+let playerHP = 3;
 
 
 function setup() {
@@ -22,20 +23,26 @@ function setup() {
 }
 
 function draw() {
-  background(time/60);// the background will get brighter as time goes by
+  background(time/60,time/60,time/60,100);// the background will get brighter as time goes by
   time++;
   textAndTime();
   bullet();
   player();
   enemy();
   expDot();
+  hpBar();
+}
+
+function backgroundPicture() {
+  // code of background picture
 }
 
 // all changes about player
 function player() {
   fill(255);
-  rect(width/2, height/2, 20, 20);
+  rect(width/2-10, height/2-10, 20, 20);
   playerMovement();
+  halo();
 
 }
 
@@ -43,12 +50,14 @@ function player() {
 function enemy() {
   for (let enemy of enemies) {
     fill('red');
-    rect(enemy.pX, enemy.pY, enemy.size);
+    rect(enemy.pX-enemy.size/2, enemy.pY-enemy.size/2, enemy.size, enemy.size);
   }
   if (enemies.length < numEnemies) {
     enemies.push(createEnemy());
   }
   enemyMovement();
+  enemyKilled();
+  enemySqueezeEachOther();
 }
 
 // all changes about exp dot
@@ -57,6 +66,7 @@ function expDot() {
     fill(0, 255, 0);
     circle(expDot.pX, expDot.pY, expDot.size);
   }
+  expDotSpawn();
 }
 
 // all changes about bullet
@@ -70,7 +80,7 @@ function bullet() {
   if (mouseIsPressed) {
     if (cooldown <= 0) {
       bullets.push(createBullet());
-      cooldown = 10-shootSpeed; // reset cooldown after shooting, the higher the shoot speed, the shorter the cooldown
+      cooldown = 30-shootSpeed; // reset cooldown after shooting, the higher the shoot speed, the shorter the cooldown
     }
   }
 
@@ -93,9 +103,27 @@ function textAndTime() {
   }
   if (time/60 < 5) {
     textSize(20);
-    text("Try to survive untill bright!", 10, 60);
-    text("Use WASD to move, click to shoot", 10, 30);
+    text("Try to survive untill bright!", 10, height-60);
+    text("Use WASD to move, click to shoot", 10, height-30);
   }
+}
+
+function hpBar() {
+  textSize(20);
+  fill(0,255,0);
+  text("HP: " + playerHP, 10, 50);
+  // Display player HP
+  fill(0, 255, 0);
+  for (let i = 0; i < playerHP; i++) {
+    rect(10 + i * 30, 60, 20, 20);
+  }
+}
+
+function halo() {
+  let haloSize = 80 + sin(time/10) * 2; // halo size will change over time
+  // code of halo around the player
+  fill(255, 255, 0, 100);
+  circle(width/2, height/2, haloSize);
 }
 
 // Move the player by moving all the enemies, exp dots, and bullets 
@@ -167,7 +195,21 @@ function enemyMovement() {
 }
 
 function enemyKilled() {
-  // code of enemy killed
+  if (bullets.length > 0) {
+    for (let bullet of bullets) {
+      for (let enemy of enemies) {
+        let distance = dist(bullet.pX, bullet.pY, enemy.pX, enemy.pY);
+        if (distance < enemy.size/2) {
+          enemy.hp -= bullet.damage;
+          if (enemy.hp <= 0) {
+            enemies.splice(enemies.indexOf(enemy), 1);
+          }
+          bullets.splice(bullets.indexOf(bullet), 1);
+          break; // break to avoid multiple enemies being killed by one bullet
+        }
+      }
+    }
+  }
 }
 
 function enemySqueezeEachOther() {
@@ -200,7 +242,8 @@ function createEnemy() {
     pX: random(width),
     pY: random(height),
     size: enemysize,
-    color: color(random(255), random(255), random(255))
+    color: color(random(255), random(255), random(255)),
+    hp: 3,
   };
   return enemy;
 }
@@ -211,7 +254,8 @@ function createBullet() {
     pY: height/2+10,
     size: 5,
     speed: 5,
-    direction: 0
+    direction: 0,
+    damage: 1,
   };
   bullet.direction = atan2(mouseY - bullet.pY, mouseX - bullet.pX);
   return bullet;
