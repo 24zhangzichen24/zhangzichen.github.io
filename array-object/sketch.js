@@ -15,6 +15,13 @@ let enemysize = 20;
 let shootSpeed = 0;
 let cooldown = 0;
 let playerHP = 3;
+let backgroundPicture;
+let backgroundX = 0;
+let backgroundY = 0;
+
+function preload() {
+  backgroundPicture = loadImage('Grass_Sample.png');
+}
 
 
 function setup() {
@@ -23,7 +30,8 @@ function setup() {
 }
 
 function draw() {
-  background(time/60,time/60,time/60,100);// the background will get brighter as time goes by
+  grassBackground();
+  background(time/60,time/60,time/60,200);// the background will get brighter as time goes by
   time++;
   textAndTime();
   bullet();
@@ -33,8 +41,12 @@ function draw() {
   hpBar();
 }
 
-function backgroundPicture() {
-  // code of background picture
+function grassBackground() {
+  for (let x = backgroundX; x < width; x += backgroundPicture.width) {
+    for (let y = backgroundY; y < height; y += backgroundPicture.height) {
+      image(backgroundPicture, x, y);
+    }
+  }
 }
 
 // all changes about player
@@ -122,7 +134,7 @@ function hpBar() {
 function halo() {
   let haloSize = 80 + sin(time/10) * 2; // halo size will change over time
   // code of halo around the player
-  fill(255, 255, 0, 100);
+  fill(255, 255, 0, 20);
   circle(width/2, height/2, haloSize);
 }
 
@@ -138,6 +150,8 @@ function playerMovement() {
     for (let bullet of bullets) {
       bullet.pY += playerSpeed;
     }
+    backgroundY += playerSpeed;
+
 
   }
   if (keyIsDown(83)) {    // move down
@@ -150,7 +164,7 @@ function playerMovement() {
     for (let bullet of bullets) {
       bullet.pY -= playerSpeed;
     }
-
+    backgroundY -= playerSpeed;
   }
   if (keyIsDown(68)) {    // move left
     for (let enemy of enemies) {
@@ -162,6 +176,7 @@ function playerMovement() {
     for (let bullet of bullets) {
       bullet.pX -= playerSpeed;
     }
+    backgroundX -= playerSpeed;
 
   }
 
@@ -175,6 +190,7 @@ function playerMovement() {
     for (let bullet of bullets) {
       bullet.pX += playerSpeed;
     }
+    backgroundX += playerSpeed;
   }
 
 
@@ -201,6 +217,7 @@ function enemyKilled() {
         let distance = dist(bullet.pX, bullet.pY, enemy.pX, enemy.pY);
         if (distance < enemy.size/2) {
           enemy.hp -= bullet.damage;
+          enemyHitEffect(enemy);
           if (enemy.hp <= 0) {
             enemies.splice(enemies.indexOf(enemy), 1);
           }
@@ -210,6 +227,11 @@ function enemyKilled() {
       }
     }
   }
+}
+
+function enemyHitEffect(enemy) {
+  fill(255, 0, 0, 100);
+  circle(enemy.pX, enemy.pY, enemy.size + 10);
 }
 
 function enemySqueezeEachOther() {
@@ -268,4 +290,8 @@ function createExp(){
     size: random(5,10),
   };
   expDots.push(expDot);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
