@@ -8,6 +8,7 @@
 let enemies = [];
 let expDots = [];
 let bullets = [];
+
 let numEnemies = 5;
 let time = 0;
 let playerSpeed = 2;
@@ -15,12 +16,20 @@ let enemysize = 20;
 let shootSpeed = 0;
 let cooldown = 0;
 let playerHP = 3;
+
 let backgroundPicture;
 let backgroundX = 0;
 let backgroundY = 0;
+let enemyPicture;
+let playerPicture;
+let bulletPicture;
 
 function preload() {
   backgroundPicture = loadImage('Grass_Sample.png');
+  enemyPicture = loadImage('Enemy_Sample.png');
+  playerPicture = loadImage('Player_Sample.png');
+  bulletPicture = loadImage('Bullet_Sample.png');
+
 }
 
 
@@ -31,12 +40,13 @@ function setup() {
 
 function draw() {
   grassBackground();
-  background(time/60,time/60,time/60,200);// the background will get brighter as time goes by
-  time++;
+  time++;    
+  background(0,0,0,200-time/10);// the background will get brighter as time goes by
   textAndTime();
-  bullet();
+  enemy();  
   player();
-  enemy();
+  halo();
+  bullet();
   expDot();
   hpBar();
 }
@@ -51,22 +61,20 @@ function grassBackground() {
 
 // all changes about player
 function player() {
-  fill(255);
-  rect(width/2-10, height/2-10, 20, 20);
+  image(playerPicture, width/2-15, height/2-15, 30, 30);
   playerMovement();
-  halo();
 
 }
 
 // all changes about enemy
 function enemy() {
   for (let enemy of enemies) {
-    fill('red');
-    rect(enemy.pX-enemy.size/2, enemy.pY-enemy.size/2, enemy.size, enemy.size);
+    image(enemyPicture, enemy.pX-enemy.size/2, enemy.pY-enemy.size/2, enemy.size, enemy.size);
   }
   if (enemies.length < numEnemies) {
     enemies.push(createEnemy());
   }
+  numEnemies = floor(time/60)+5; // the number of enemies will increase as time goes by
   enemyMovement();
   enemyKilled();
   enemySqueezeEachOther();
@@ -97,8 +105,7 @@ function bullet() {
   }
 
   for (let bullet of bullets) {
-    fill(255);
-    circle(bullet.pX, bullet.pY, bullet.size);
+    image(bulletPicture, bullet.pX-bullet.size/2, bullet.pY-bullet.size/2, bullet.size, bullet.size);
   }
   bulletMovement();
 }
@@ -230,8 +237,8 @@ function enemyKilled() {
 }
 
 function enemyHitEffect(enemy) {
-  fill(255, 0, 0, 100);
-  circle(enemy.pX, enemy.pY, enemy.size + 10);
+  fill(255, 100);
+  rect(enemy.pX-enemy.size/2, enemy.pY-enemy.size/2, enemy.size, enemy.size);
 }
 
 function enemySqueezeEachOther() {
@@ -261,8 +268,8 @@ function bulletMovement() {
 
 function createEnemy() {
   let enemy = {
-    pX: random(width),
-    pY: random(height),
+    pX: randompositionX(),
+    pY: randompositionY(),
     size: enemysize,
     color: color(random(255), random(255), random(255)),
     hp: 3,
@@ -270,11 +277,38 @@ function createEnemy() {
   return enemy;
 }
 
+let rand =0;
+function randompositionX() {
+  rand = random(1);
+  if (rand < 0.25) {
+    return 0;
+  } 
+  else if (rand < 0.5) {
+    return width+10;
+  }
+  else {
+    return random(-10, width+10);
+  }
+}
+
+function randompositionY() {
+  if (rand > 0.75) {
+    return 0;
+  }
+  else if (rand >= 0.5) {
+    return height+10;
+  }
+  else {
+    return random(-10, height+10);
+  }
+}
+
+
 function createBullet() {
   let bullet = {
-    pX: width/2+10,
-    pY: height/2+10,
-    size: 5,
+    pX: width/2,
+    pY: height/2,
+    size:20,
     speed: 5,
     direction: 0,
     damage: 1,
@@ -285,8 +319,8 @@ function createBullet() {
 
 function createExp(){
   let expDot = {
-    pX: random(width),
-    pY: random(height),
+    pX: randompositionX(),
+    pY: randompositionY(),
     size: random(5,10),
   };
   expDots.push(expDot);
