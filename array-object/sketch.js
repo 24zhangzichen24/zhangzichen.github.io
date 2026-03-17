@@ -116,7 +116,7 @@ function bullet() {
   }
   bulletMovement();
 }
-
+function textAndTime(){
 // display time and text on the screen, the color of time will change as time goes by
   textSize(40);
   fill(255-time/100, 0, time/100);
