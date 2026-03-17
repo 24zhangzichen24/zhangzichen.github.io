@@ -3,7 +3,8 @@
 // 3/5/2026
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+// use trignometry function calculate the direction and angle between objects or mouse
+// Use % to loop the offset so the background seamlessly repeats infinitely
 
 let enemies = [];
 let expDots = [];
@@ -16,6 +17,7 @@ let enemysize = 20;
 let shootSpeed = 0;
 let cooldown = 0;
 let playerHP = 3;
+let playerExp = 0;
 
 let backgroundPicture;
 let backgroundX = 0;
@@ -52,8 +54,12 @@ function draw() {
 }
 
 function grassBackground() {
-  for (let x = backgroundX; x < width; x += backgroundPicture.width) {
-    for (let y = backgroundY; y < height; y += backgroundPicture.height) {
+  let offsetX = backgroundX % backgroundPicture.width;
+  let offsetY = backgroundY % backgroundPicture.height;
+  
+  // Start drawing one image-width outside the screen to prevent pop-in
+  for (let x = offsetX - backgroundPicture.width; x < width + backgroundPicture.width; x += backgroundPicture.width) {
+    for (let y = offsetY - backgroundPicture.height; y < height + backgroundPicture.height; y += backgroundPicture.height) {
       image(backgroundPicture, x, y);
     }
   }
@@ -71,6 +77,7 @@ function enemy() {
   for (let enemy of enemies) {
     image(enemyPicture, enemy.pX-enemy.size/2, enemy.pY-enemy.size/2, enemy.size, enemy.size);
   }
+  
   if (enemies.length < numEnemies) {
     enemies.push(createEnemy());
   }
@@ -91,16 +98,16 @@ function expDot() {
 
 // all changes about bullet
 function bullet() {
-  
   // cooldown time for shooting
   if (cooldown > 0) {
     cooldown--;
   }
-  // bullet will be created at the player position the higher the shoot speed, the faster the bullet moves
+  // bullet will be created at the player position
+  // the higher the shoot speed, the faster the bullet moves
   if (mouseIsPressed) {
     if (cooldown <= 0) {
       bullets.push(createBullet());
-      cooldown = 30-shootSpeed; // reset cooldown after shooting, the higher the shoot speed, the shorter the cooldown
+      cooldown = 30-shootSpeed; // the higher the shoot speed, the shorter the cooldown
     }
   }
 
@@ -110,8 +117,7 @@ function bullet() {
   bulletMovement();
 }
 
-// display time and text on the screen, the color of time will change as time goes by, and some text will appear when time is less than 5 minutes or more than 30 minutes
-function textAndTime() {
+// display time and text on the screen, the color of time will change as time goes by
   textSize(40);
   fill(255-time/100, 0, time/100);
   text("Time: " + floor(time/60), width/2-40, 30);
