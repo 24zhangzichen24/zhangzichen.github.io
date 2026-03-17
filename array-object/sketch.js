@@ -5,6 +5,7 @@
 // Extra for Experts:
 // use trignometry function calculate the direction and angle between objects or mouse
 // Use % to loop the offset so the background seamlessly repeats infinitely
+// Use push and pop and translate to rotate the bullet image according to its direction
 
 let enemies = [];
 let expDots = [];
@@ -13,7 +14,7 @@ let bullets = [];
 let numEnemies = 5;
 let time = 0;
 let playerSpeed = 2;
-let enemysize = 20;
+let enemysize = 100;
 let shootSpeed = 0;
 let cooldown = 0;
 let playerHP = 3;
@@ -43,11 +44,11 @@ function setup() {
 function draw() {
   grassBackground();
   time++;    
-  background(0,0,0,200-time/10);// the background will get brighter as time goes by
+  background(0,0,0,200-time/100);// the background will get brighter as time goes by
   textAndTime();
-  enemy();  
+  enemy(); 
+  halo(); 
   player();
-  halo();
   bullet();
   expDot();
   hpBar();
@@ -67,7 +68,7 @@ function grassBackground() {
 
 // all changes about player
 function player() {
-  image(playerPicture, width/2-15, height/2-15, 30, 30);
+  image(playerPicture, width/2-50, height/2-50, 100, 100);
   playerMovement();
 
 }
@@ -75,13 +76,16 @@ function player() {
 // all changes about enemy
 function enemy() {
   for (let enemy of enemies) {
+    if (enemy.px > width/2) {
+      scale(-1, 1); // Flip horizontally
+    }
     image(enemyPicture, enemy.pX-enemy.size/2, enemy.pY-enemy.size/2, enemy.size, enemy.size);
   }
   
   if (enemies.length < numEnemies) {
     enemies.push(createEnemy());
   }
-  numEnemies = floor(time/60)+5; // the number of enemies will increase as time goes by
+  numEnemies = floor(time/300)+5; // the number of enemies will increase as time goes by
   enemyMovement();
   enemyKilled();
   enemySqueezeEachOther();
@@ -112,10 +116,17 @@ function bullet() {
   }
 
   for (let bullet of bullets) {
-    image(bulletPicture, bullet.pX-bullet.size/2, bullet.pY-bullet.size/2, bullet.size, bullet.size);
+    push(); // Save current drawing settings
+    translate(bullet.pX, bullet.pY); // Move the origin to the bullet's center
+    rotate(bullet.direction-PI); // Rotate to match the bullet's travel direction
+    
+    // Because we translated to the bullet's center, draw the image at 0,0 
+    image(bulletPicture, -bullet.size/2, -bullet.size/2, bullet.size, bullet.size-bullet.size/3);
+    pop(); // Restore original drawing settings
   }
   bulletMovement();
 }
+
 function textAndTime(){
 // display time and text on the screen, the color of time will change as time goes by
   textSize(40);
@@ -145,10 +156,13 @@ function hpBar() {
 }
 
 function halo() {
-  let haloSize = 80 + sin(time/10) * 2; // halo size will change over time
+  let haloSize =  sin(time/10) * 6; // halo size will change over time
   // code of halo around the player
-  fill(255, 255, 0, 20);
-  circle(width/2, height/2, haloSize);
+  for (let i = 0; i < 20; i++) {
+    fill(255, 255, 0, 20+sin(time/10+i)*10);
+    circle(width/2, height/2, haloSize + i*10);
+  }
+
 }
 
 // Move the player by moving all the enemies, exp dots, and bullets 
@@ -243,8 +257,9 @@ function enemyKilled() {
 }
 
 function enemyHitEffect(enemy) {
-  fill(255, 100);
-  rect(enemy.pX-enemy.size/2, enemy.pY-enemy.size/2, enemy.size, enemy.size);
+  tint(255, 0, 0, 150);
+  image(enemyPicture, enemy.pX-enemy.size/2, enemy.pY-enemy.size/2, enemy.size, enemy.size);
+  noTint();
 }
 
 function enemySqueezeEachOther() {
@@ -314,7 +329,7 @@ function createBullet() {
   let bullet = {
     pX: width/2,
     pY: height/2,
-    size:20,
+    size:80,
     speed: 5,
     direction: 0,
     damage: 1,
