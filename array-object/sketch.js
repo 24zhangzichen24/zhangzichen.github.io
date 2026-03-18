@@ -27,18 +27,30 @@ let enemyPicture;
 let playerPicture;
 let bulletPicture;
 
+let bgmSound;     
+let shootSound;    
+let dieSound;      
+let hurtSound; 
+
 function preload() {
   backgroundPicture = loadImage('Grass_Sample.png');
   enemyPicture = loadImage('Enemy_Sample.png');
   playerPicture = loadImage('Player_Sample.png');
   bulletPicture = loadImage('Bullet_Sample.png');
 
+  bgmSound = loadSound('bgm.mp3');
+  shootSound = loadSound('shoot.wav');
+  dieSound = loadSound('explosion.wav');
+  hurtSound = loadSound('hurt.wav');
 }
 
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   noStroke();
+  // play backgrounds music
+  bgmSound.setVolume(0.3);
+  bgmSound.loop(); 
 }
 
 function draw() {
@@ -68,20 +80,29 @@ function grassBackground() {
 
 // all changes about player
 function player() {
-  image(playerPicture, width/2-50, height/2-50, 100, 100);
+  // player towards direction of the mouse
+  push();
+  translate(width/2, height/2);
+  image(playerPicture,-50,-50, 100, 100);
+  if (mouseX < width/2) {
+    scale(-1, 1); 
+  }
+  pop();
   playerMovement();
-
 }
 
 // all changes about enemy
 function enemy() {
-  for (let enemy of enemies) {
-    if (enemy.px > width/2) {
-      scale(-1, 1); // Flip horizontally
+  // always face to middle
+  for (let enemy of enemies){
+    push();
+    translate(enemy.pX, enemy.pY);
+    if (enemy.pX < width/2) {
+      scale(-1, 1); 
     }
-    image(enemyPicture, enemy.pX-enemy.size/2, enemy.pY-enemy.size/2, enemy.size, enemy.size);
+    image(enemyPicture, -enemy.size/2, -enemy.size/2, enemy.size, enemy.size);
+    pop();
   }
-  
   if (enemies.length < numEnemies) {
     enemies.push(createEnemy());
   }
@@ -89,15 +110,27 @@ function enemy() {
   enemyMovement();
   enemyKilled();
   enemySqueezeEachOther();
+  enemyDamagePlayer();
 }
 
 // all changes about exp dot
 function expDot() {
-  for (let expDot of expDots) {
+  for (let i = expDots.length - 1; i >= 0; i--) {
+    let dot = expDots[i];
     fill(0, 255, 0);
-    circle(expDot.pX, expDot.pY, expDot.size);
+    circle(dot.pX, dot.pY, dot.size);
+    // Distance to player 
+    let d = dist(dot.pX, dot.pY, width/2, height/2);
+    if (d < 50) { 
+      expDots.splice(i, 1); // Collect it
+      playerExp++; 
+      // Heal
+      if (playerExp >= 5) {
+        playerHP++;
+        playerExp = 0; 
+      }
+    }
   }
-  expDotSpawn();
 }
 
 // all changes about bullet
@@ -111,18 +144,17 @@ function bullet() {
   if (mouseIsPressed) {
     if (cooldown <= 0) {
       bullets.push(createBullet());
+      shootSound.play();
       cooldown = 30-shootSpeed; // the higher the shoot speed, the shorter the cooldown
     }
   }
 
   for (let bullet of bullets) {
-    push(); // Save current drawing settings
-    translate(bullet.pX, bullet.pY); // Move the origin to the bullet's center
-    rotate(bullet.direction-PI); // Rotate to match the bullet's travel direction
-    
-    // Because we translated to the bullet's center, draw the image at 0,0 
+    push();
+    translate(bullet.pX, bullet.pY); 
+    rotate(bullet.direction-PI); 
     image(bulletPicture, -bullet.size/2, -bullet.size/2, bullet.size, bullet.size-bullet.size/3);
-    pop(); // Restore original drawing settings
+    pop(); 
   }
   bulletMovement();
 }
@@ -157,7 +189,7 @@ function hpBar() {
 
 function halo() {
   let haloSize =  sin(time/10) * 6; // halo size will change over time
-  // code of halo around the player
+//the hollow has the different of light
   for (let i = 0; i < 20; i++) {
     fill(255, 255, 0, 20+sin(time/10+i)*10);
     circle(width/2, height/2, haloSize + i*10);
@@ -242,11 +274,13 @@ function enemyKilled() {
     for (let bullet of bullets) {
       for (let enemy of enemies) {
         let distance = dist(bullet.pX, bullet.pY, enemy.pX, enemy.pY);
-        if (distance < enemy.size/2) {
+        if (distance < enemy.size/2) {// check if there is any bullet touch the enemy
           enemy.hp -= bullet.damage;
           enemyHitEffect(enemy);
           if (enemy.hp <= 0) {
             enemies.splice(enemies.indexOf(enemy), 1);
+            dieSound.play();
+            expDots.push({ pX: enemy.pX, pY: enemy.pY, size: 10 }); 
           }
           bullets.splice(bullets.indexOf(bullet), 1);
           break; // break to avoid multiple enemies being killed by one bullet
@@ -263,6 +297,7 @@ function enemyHitEffect(enemy) {
 }
 
 function enemySqueezeEachOther() {
+  // enemy will push each other to the opposite direction
   for (let enemy1 of enemies) {
     for (let enemy2 of enemies) {
       if (enemy1 !== enemy2) {
@@ -276,6 +311,29 @@ function enemySqueezeEachOther() {
         }
       }
     }
+  }
+}
+
+function enemyDamagePlayer() {
+
+  if (frameCount % 60 === 0) { 
+    for (let enemy of enemies) {
+      let d = dist(enemy.pX, enemy.pY, width/2, height/2);
+      if (d < enemy.size / 2) {
+        playerHP--;
+        hurtSound.play();
+        break; // Only lose 1 HP per second even if hit by many
+      }
+    }
+  }
+  
+  if (playerHP <= 0) {
+    noLoop(); // Stop game
+    bgmSound.stop();
+    background(0, 150);
+    fill(255, 0, 0);
+    textAlign(CENTER);
+    text("GAME OVER", width/2, height/2);
   }
 }
 
