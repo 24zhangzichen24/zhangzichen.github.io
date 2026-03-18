@@ -7,6 +7,7 @@
 - [Image Demo](03-images)
 - [Ball Array](04-ball-array)
 - [Generative art](05-art)
+- [2d Grid](07-grid)
 
 ## Assignments
 -[Interactive](interactive-sence)
