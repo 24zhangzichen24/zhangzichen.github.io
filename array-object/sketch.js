@@ -189,7 +189,7 @@ function hpBar() {
 
 function halo() {
   let haloSize =  sin(time/10) * 6; // halo size will change over time
-//the hollow has the different of light
+  //the hollow has the different of light
   for (let i = 0; i < 20; i++) {
     fill(255, 255, 0, 20+sin(time/10+i)*10);
     circle(width/2, height/2, haloSize + i*10);
