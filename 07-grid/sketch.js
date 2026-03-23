@@ -9,8 +9,8 @@
 //             [0,0,0,0,0,0]];
 
 let theGrid;
-const GRIDSIZE = 10000;
-let cellSize;
+let GRIDSIZE ;
+const cellSize= 20;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
