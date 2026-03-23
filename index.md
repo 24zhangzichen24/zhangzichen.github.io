@@ -13,5 +13,6 @@
 ## Assignments
 -[Interactive](interactive-sence)
 -[Arrays and Object Notaion](array-object)
+-[Grid Based Game](grid-based)
 
 ## Extra for Expert
