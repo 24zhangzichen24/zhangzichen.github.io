@@ -2,10 +2,12 @@
 //  life game
 
 
-const CELL_SIZE = 25;
+const CELL_SIZE = 2;
 let cols;
 let rows;
 let grid = [];
+let autoPlay = false;
+const RENDER_ON_FEAME = 1;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -18,7 +20,9 @@ function setup() {
 function draw() {
   background(220);
   displayGrid();
-  liveOrDie();
+  if (autoPlay && frameCount % RENDER_ON_FEAME === 0) {
+    liveOrDie();
+  }
 }
 
 function displayGrid() {
@@ -42,11 +46,11 @@ function liveOrDie() {
     for (let x = 0; x < cols; x++) {
       let neighbors = countNeighbors(x, y);
       if (grid[y][x] === 1) {
-        if (neighbors < 2 || neighbors > 3) {
-          newGrid[y][x] = 0;
+        if (neighbors === 2 || neighbors === 3) {
+          newGrid[y][x] = 1;
         }
         else {
-          newGrid[y][x] = 1;
+          newGrid[y][x] = 0;
         }
       }
       else {
@@ -96,6 +100,19 @@ function keyPressed() {
   if (key === 'r') {
     grid = createRandomGrid(cols, rows);
   }
+  if (key === ' ') {
+    autoPlay = !autoPlay; 
+  }
+}
+
+function takeTurn() {
+  let nextTurn = generateEmptyGrid(cols, rows);
+
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+    }
+  }
+  return nextTurn;
 }
 
 function mousePressed() {
