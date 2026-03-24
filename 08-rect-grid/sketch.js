@@ -2,12 +2,19 @@
 //  life game
 
 
-const CELL_SIZE = 2;
+const CELL_SIZE = 20;
+const RENDER_ON_FEAME = 1;
+const DEAD = 0;
+const LIVE = 1;
 let cols;
 let rows;
 let grid = [];
 let autoPlay = false;
-const RENDER_ON_FEAME = 1;
+let gosper;
+
+function preload() {
+  gosper = loadJSON("gosper.json");
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -28,7 +35,7 @@ function draw() {
 function displayGrid() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
-      if (grid[y][x] === 1) {
+      if (grid[y][x] === LIVE) {
         fill(0);
       }
       else {
@@ -45,20 +52,20 @@ function liveOrDie() {
     newGrid.push([]);
     for (let x = 0; x < cols; x++) {
       let neighbors = countNeighbors(x, y);
-      if (grid[y][x] === 1) {
+      if (grid[y][x] === LIVE) {
         if (neighbors === 2 || neighbors === 3) {
-          newGrid[y][x] = 1;
+          newGrid[y][x] = LIVE;
         }
         else {
-          newGrid[y][x] = 0;
+          newGrid[y][x] = DEAD;
         }
       }
       else {
         if (neighbors === 3) {
-          newGrid[y][x] = 1;
+          newGrid[y][x] = LIVE;
         }
         else {
-          newGrid[y][x] = 0;
+          newGrid[y][x] = DEAD  ;
         }
       }
     }
@@ -102,6 +109,9 @@ function keyPressed() {
   }
   if (key === ' ') {
     autoPlay = !autoPlay; 
+  }
+  if (key === 'g') {
+    grid = gosper;
   }
 }
 
