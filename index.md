@@ -9,6 +9,7 @@
 - [Generative art](05-art)
 - [2d Grid](07-grid)
 - [Rectangular grid](08-rect-grid)
+- [Charactor](10-charactor)
 
 ## Assignments
 -[Interactive](interactive-sence)
