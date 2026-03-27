@@ -11,7 +11,7 @@ const EXPOSED = 1;
 const bomb = 'bomb';
 let cols;
 let rows;
-let bombsNums = 3;
+let bombsNums = 15;
 let startX;
 let startY;
 
@@ -21,6 +21,8 @@ let bombs = [];
 let flags = [];
 let flagImg;
 let bombImg;
+
+let firstClick = true;
 
 function preload() {
   flagImg = loadImage("assets/flag.png");
@@ -39,16 +41,20 @@ function setup() {
   createUpGrid();
   createdownGrid();
   createFlag();
-  setbombs(bombsNums);
 }
 
 function draw() {
   background(220);
   setnumber();
-  setCrossLines();
   displayDownGrid();
   displayUpGrid();
   displayFlag();
+  setCrossLines();
+}
+
+function setBackground(){
+  fill(170);
+  rect(0,0,cols * BLOCK_SIZE,rows * BLOCK_SIZE);
 }
 
 function createUpGrid() {
@@ -70,8 +76,7 @@ function createdownGrid() {
     }
     downGrid.push(row);
   }
-  setCrossLines();
-  setbombs(10);
+  setbombs(bombsNums);
   setnumber();
 }
 
@@ -106,16 +111,15 @@ function displayUpGrid() {
 }
 
 function setCrossLines() {
-  push();
-  translate(startX, startY);
+  strokeWeight(5);
   for (let y = 0; y < rows+1; y++) {
     for (let x = 0; x < cols+1; x++) {
-      fill(60);
+      fill(20);
       line(x * BLOCK_SIZE, 0, x * BLOCK_SIZE, rows * BLOCK_SIZE);
       line(0, y * BLOCK_SIZE, cols * BLOCK_SIZE, y * BLOCK_SIZE);
     }
   }
-  pop();
+
 }
 
 function setbombs(numBombs) {
@@ -147,19 +151,23 @@ function singleBlock(x, y) {
 
 function displayDownGrid() {
   translate(startX, startY);
+  setBackground();
+  setCrossLines();
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (downGrid[y][x] === bomb) {
         image(bombImg, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
       }
       else {
-        fill(255);
-        textSize(20);
+        fill(downGrid[y][x]%3 *200,downGrid[y][x]%2 *250,downGrid[y][x]%5 *100);
+        textSize(30);
+        textStyle(BOLD);
         textAlign(CENTER, CENTER);
         text(downGrid[y][x], x * BLOCK_SIZE + BLOCK_SIZE / 2, y * BLOCK_SIZE + BLOCK_SIZE / 2);
       }
     }
   }
+  pop();
 }
 
 function setnumber() {
@@ -197,13 +205,25 @@ function mousePressed() {
   let x = floor((mouseX - startX) / BLOCK_SIZE);
   let y = floor((mouseY - startY) / BLOCK_SIZE);
   if (x >= 0 && x < cols && y >= 0 && y < rows) {
-    if (mouseButton === LEFT) {
-      upGrid[y][x] = 0;
-      clearBeside(x, y);
+    if (flags[y][x]!==true){
+      if (mouseButton === LEFT) {
+        upGrid[y][x] = 0;
+        clearBeside(x, y);
+        if (firstClick){
+          for (let j = -1; j <= 1; j++) {
+            for (let i = -1; i <= 1; i++) {
+              downGrid[y+j][x+i]=0;
+            }
+          }
+          clearBeside(x, y);
+          firstClick =!firstClick;
+        }
+      }
     }
-  
     if (mouseButton === RIGHT) {
-      flags[y][x] = !flags[y][x];
+      if(upGrid[y][x] === 1){
+        flags[y][x] = !flags[y][x];
+      }
     }
   }
 }
@@ -232,6 +252,7 @@ function keyPressed() {
     upGrid = [];
     createUpGrid();
     createdownGrid();
+    firstClick = true;
   }
 
   if (key === 'b' || key === 'B') {
