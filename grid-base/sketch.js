@@ -8,7 +8,7 @@
 const BLOCK_SIZE = 40;
 const UNEXPOSED = 0;
 const EXPOSED = 1;
-const bomb = 'bomb';
+const bomb = true;
 let cols;
 let rows;
 let bombsNums = 15;
@@ -21,8 +21,11 @@ let bombs = [];
 let flags = [];
 let flagImg;
 let bombImg;
+let instruction = [];
 
 let firstClick = true;
+let numsOfExposedBombs = 0;
+let gameSituation = "playing";
 
 function preload() {
   flagImg = loadImage("assets/flag.png");
@@ -32,12 +35,15 @@ function preload() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   stroke(100);
+  // I found this in other people's code
+  document.addEventListener('contextmenu', event => event.preventDefault());
 
   cols = 10;
   rows = 10;
   startX = width / 2 - cols * BLOCK_SIZE / 2;
   startY = height / 2 - rows * BLOCK_SIZE / 2;
 
+  // I remove the create grid part after first click
   createUpGrid();
   createdownGrid();
   createFlag();
@@ -50,6 +56,22 @@ function draw() {
   displayUpGrid();
   displayFlag();
   setCrossLines();
+  checkIfWin();
+
+  // watch the bombsNums
+  bombsNums = 0;
+  fill(0);
+  textSize(20);
+  textStyle(BOLD);
+  textAlign(LEFT, TOP);
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (bombs[y][x] === true) {
+        bombsNums++;
+      }
+    }
+  }
+  text("Bombs: " + bombsNums, 10, 10);
 }
 
 function setBackground(){
@@ -123,10 +145,17 @@ function setCrossLines() {
 }
 
 function setbombs(numBombs) {
+  for (let y = 0; y < rows; y++) {
+    bombs[y]=[];
+    for (let x = 0; x < cols; x++) {
+      bombs[y][x] = false;
+    }
+  }
   for (let i = 0; i < numBombs; i++) {
     let x = floor(random(cols));
     let y = floor(random(rows));
     downGrid[y][x] = bomb;
+    bombs[y][x] = true;
   }
 }
 
@@ -185,6 +214,43 @@ function setnumber() {
   }
 }
 
+function checkIfWin() {
+  if (flags === bombs) {
+    gameSituation = "won";
+  }
+
+  if (gameSituation === "won") {
+    fill(0, 255, 0, 150);
+    rect(-startX, -startY, width, height);
+    fill(0);
+    textSize(50);
+    textStyle(BOLD);
+    textAlign(CENTER, CENTER);
+    text("You Win!", width / 2 - startX, height / 2 - startY);
+  }
+
+  else if (gameSituation === "lost") {
+    fill(255, 0, 0, 150);
+    rect(-startX, -startY, width, height);
+    fill(0);
+    textSize(50);
+    textStyle(BOLD);
+    textAlign(CENTER, CENTER);
+    text("Game Over!", width / 2 - startX, height / 2 - startY);
+  }
+
+  else if (gameSituation === "typed") {
+    fill(0, 0, 255, 150);
+    rect(-startX, -startY, width, height);
+    fill(255);
+    textSize(50);
+    textStyle(BOLD);
+    textAlign(CENTER, CENTER);
+    text("You typed Enter!", width / 2 - startX, height / 2 - startY);
+  }
+}
+
+
 function countNeighborBombs(x, y) {
   let count = 0;
   for (let j = -1; j <= 1; j++) {
@@ -207,16 +273,24 @@ function mousePressed() {
   if (x >= 0 && x < cols && y >= 0 && y < rows) {
     if (flags[y][x]!==true){
       if (mouseButton === LEFT) {
+        
         upGrid[y][x] = 0;
         clearBeside(x, y);
+
         if (firstClick){
+          createdownGrid();
           for (let j = -1; j <= 1; j++) {
             for (let i = -1; i <= 1; i++) {
               downGrid[y+j][x+i]=0;
             }
           }
+        
           clearBeside(x, y);
           firstClick =!firstClick;
+        }
+
+        if (downGrid[y][x] === bomb) {
+          gameSituation = "lost";
         }
       }
     }
@@ -237,6 +311,7 @@ function clearBeside(x, y) {
         if (newX >= 0 && newX < cols && newY >= 0 && newY < rows) {
           if (upGrid[newY][newX] === 1) {
             upGrid[newY][newX] = 0;
+            flags[newY][newX] = false;
             clearBeside(newX, newY);
           }
         }
@@ -252,10 +327,18 @@ function keyPressed() {
     upGrid = [];
     createUpGrid();
     createdownGrid();
+    createFlag();
     firstClick = true;
+    gameSituation = "playing";
   }
 
   if (key === 'b' || key === 'B') {
     downGrid[floor((mouseY - startY) / BLOCK_SIZE)][floor((mouseX - startX) / BLOCK_SIZE)] = bomb;
+  }
+
+  // use enter to change variable in game
+  if (key === 'Enter') {
+    gameSituation = "typed";
+    instruction.push(key);
   }
 }
