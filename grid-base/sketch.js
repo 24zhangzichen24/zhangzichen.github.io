@@ -58,20 +58,6 @@ function draw() {
   setCrossLines();
   checkIfWin();
 
-  // watch the bombsNums
-  bombsNums = 0;
-  fill(0);
-  textSize(20);
-  textStyle(BOLD);
-  textAlign(LEFT, TOP);
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      if (bombs[y][x] === true) {
-        bombsNums++;
-      }
-    }
-  }
-  text("Bombs: " + bombsNums, 10, 10);
 }
 
 function setBackground(){
@@ -196,7 +182,6 @@ function displayDownGrid() {
       }
     }
   }
-  pop();
 }
 
 function setnumber() {
@@ -273,21 +258,19 @@ function mousePressed() {
   if (x >= 0 && x < cols && y >= 0 && y < rows) {
     if (flags[y][x]!==true){
       if (mouseButton === LEFT) {
-        
-        upGrid[y][x] = 0;
-        clearBeside(x, y);
-
         if (firstClick){
-          createdownGrid();
           for (let j = -1; j <= 1; j++) {
             for (let i = -1; i <= 1; i++) {
               downGrid[y+j][x+i]=0;
             }
           }
-        
-          clearBeside(x, y);
           firstClick =!firstClick;
         }
+        console.log(1);
+        upGrid[y][x] = 0;
+        downGrid[y][x] = '';
+        clearBeside(x, y);
+        
 
         if (downGrid[y][x] === bomb) {
           gameSituation = "lost";
@@ -303,6 +286,7 @@ function mousePressed() {
 }
 
 function clearBeside(x, y) {
+  console.log(2);
   if (downGrid[y][x] === '') {
     for (let j = -1; j <= 1; j++) {
       for (let i = -1; i <= 1; i++) {
@@ -317,6 +301,7 @@ function clearBeside(x, y) {
         }
       }
     }
+    console.log(3);
   }
 }
 
@@ -328,6 +313,7 @@ function keyPressed() {
     createUpGrid();
     createdownGrid();
     createFlag();
+    bombsNums = 15;
     firstClick = true;
     gameSituation = "playing";
   }
