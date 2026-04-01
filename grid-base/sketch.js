@@ -38,8 +38,8 @@ function setup() {
   // I found this in other people's code
   document.addEventListener('contextmenu', event => event.preventDefault());
 
-  cols = 10;
-  rows = 10;
+  cols = 30;
+  rows = 30;
   startX = width / 2 - cols * BLOCK_SIZE / 2;
   startY = height / 2 - rows * BLOCK_SIZE / 2;
 
@@ -264,12 +264,11 @@ function mousePressed() {
               downGrid[y+j][x+i]=0;
             }
           }
-          firstClick =!firstClick;
+          firstClick =false;
         }
-        console.log(1);
         upGrid[y][x] = 0;
-        downGrid[y][x] = '';
         clearBeside(x, y);
+        console.log(x,y);
         
 
         if (downGrid[y][x] === bomb) {
@@ -286,7 +285,6 @@ function mousePressed() {
 }
 
 function clearBeside(x, y) {
-  console.log(2);
   if (downGrid[y][x] === '') {
     for (let j = -1; j <= 1; j++) {
       for (let i = -1; i <= 1; i++) {
@@ -301,7 +299,6 @@ function clearBeside(x, y) {
         }
       }
     }
-    console.log(3);
   }
 }
 
