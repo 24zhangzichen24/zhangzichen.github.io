@@ -9,9 +9,10 @@ const BLOCK_SIZE = 40;
 const UNEXPOSED = 0;
 const EXPOSED = 1;
 const bomb = true;
+const readableChars = "qwertyuiopasdfghjklzxcvbnm1234567890";
 let cols;
 let rows;
-let bombsNums = 15;
+let bombsNums = 100;
 let startX;
 let startY;
 
@@ -51,18 +52,27 @@ function setup() {
 
 function draw() {
   background(220);
-  setnumber();
   displayDownGrid();
   displayUpGrid();
   displayFlag();
   setCrossLines();
-  checkIfWin();
+  gameSituationSovling();
+  textBackground();
 
 }
 
 function setBackground(){
   fill(170);
   rect(0,0,cols * BLOCK_SIZE,rows * BLOCK_SIZE);
+}
+
+function textBackground(){
+  textSize(20);
+  textStyle(BOLD);
+  textAlign(LEFT, TOP);
+  fill(0);
+  text("Press 'R' to reset the game", -10,-10);
+  text("Press 'Enter' to type something", 10, 70);
 }
 
 function createUpGrid() {
@@ -199,9 +209,18 @@ function setnumber() {
   }
 }
 
-function checkIfWin() {
+function gameSituationSovling() {
+  
   if (flags === bombs) {
     gameSituation = "won";
+  }
+
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (upGrid[y][x] === 0 && downGrid[y][x] === bomb) {
+        gameSituation = "lost";
+      } 
+    }
   }
 
   if (gameSituation === "won") {
@@ -232,6 +251,7 @@ function checkIfWin() {
     textStyle(BOLD);
     textAlign(CENTER, CENTER);
     text("You typed Enter!", width / 2 - startX, height / 2 - startY);
+    text(instruction, width / 2 - startX, height / 2 - startY + 60);
   }
 }
 
@@ -255,9 +275,14 @@ function countNeighborBombs(x, y) {
 function mousePressed() {
   let x = floor((mouseX - startX) / BLOCK_SIZE);
   let y = floor((mouseY - startY) / BLOCK_SIZE);
+
+  if (!ifclickwork(x,y)){
+    return;
+  }
+
   if (x >= 0 && x < cols && y >= 0 && y < rows) {
-    if (flags[y][x]!==true){
-      if (mouseButton === LEFT) {
+    if (mouseButton === LEFT) {
+      if (flags[y][x]!==true){
         if (firstClick){
           for (let j = -1; j <= 1; j++) {
             for (let i = -1; i <= 1; i++) {
@@ -265,20 +290,44 @@ function mousePressed() {
             }
           }
           firstClick =false;
+          setnumber();
         }
         upGrid[y][x] = 0;
         clearBeside(x, y);
         console.log(x,y);
-        
-
-        if (downGrid[y][x] === bomb) {
-          gameSituation = "lost";
-        }
       }
     }
     if (mouseButton === RIGHT) {
       if(upGrid[y][x] === 1){
         flags[y][x] = !flags[y][x];
+      }
+    }
+    if (mouseButton === doubleClicked) {
+      let numFlags = 0;
+      for (let j = -1; j <= 1; j++) {
+        for (let i = -1; i <= 1; i++) {
+          if (x + i >= 0 && x + i < cols && y + j >= 0 && y + j < rows) {
+            if (flags[y+j][x+i] === true){
+              numFlags++;
+            }
+          }
+        }
+      }
+      
+      if (numFlags === downGrid[y][x]){
+        for (let j = -1; j <= 1; j++) {
+          for (let i = -1; i <= 1; i++) {
+            if (x + i >= 0 && x + i < cols && y + j >= 0 && y + j < rows) {
+              if (flags[y+j][x+i] === false){
+                upGrid[y+j][x+i] = 0;
+                clearBeside(x+i, y+j);
+                if (downGrid[y+j][x+i] === bomb) {
+                  gameSituation = "lost";
+                }
+              }
+            }
+          }       
+        }
       }
     }
   }
@@ -302,26 +351,39 @@ function clearBeside(x, y) {
   }
 }
 
+function ifclickwork(x,y){
+  return x >= 0 && x < cols && y >= 0 && y < rows &&
+         upGrid[y][x] === 1 && flags[y][x] === false&&
+         gameSituation === "playing";
+}
 
 function keyPressed() {
-  if (key === 'r' || key === 'R') {
+  if (key === 'r' || key === 'R'&& gameSituation !== "typed") {
     downGrid = [];
     upGrid = [];
     createUpGrid();
     createdownGrid();
     createFlag();
-    bombsNums = 15;
+    bombsNums = 100;
     firstClick = true;
     gameSituation = "playing";
   }
 
-  if (key === 'b' || key === 'B') {
+  if (key === 'b' || key === 'B' && gameSituation === "playing") {
     downGrid[floor((mouseY - startY) / BLOCK_SIZE)][floor((mouseX - startX) / BLOCK_SIZE)] = bomb;
   }
 
   // use enter to change variable in game
   if (key === 'Enter') {
     gameSituation = "typed";
-    instruction.push(key);
+  }
+  if (gameSituation === "typed") {
+    if (readableChars.includes(key)) {
+      instruction.push(key);
+    }
+    if (key === 'Backspace') {
+      instruction.pop();
+    }
+
   }
 }
