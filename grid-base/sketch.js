@@ -12,7 +12,7 @@ const bomb = true;
 const readableChars = "qwertyuiopasdfghjklzxcvbnm1234567890";
 let cols;
 let rows;
-let bombsNums = 100;
+let bombsNums = 10;
 let startX;
 let startY;
 
@@ -39,8 +39,8 @@ function setup() {
   // I found this in other people's code
   document.addEventListener('contextmenu', event => event.preventDefault());
 
-  cols = 30;
-  rows = 30;
+  cols = 5;
+  rows = 5;
   startX = width / 2 - cols * BLOCK_SIZE / 2;
   startY = height / 2 - rows * BLOCK_SIZE / 2;
 
@@ -150,8 +150,13 @@ function setbombs(numBombs) {
   for (let i = 0; i < numBombs; i++) {
     let x = floor(random(cols));
     let y = floor(random(rows));
+    if (bombs[y][x] === true){
+      i--;
+      continue;
+    }
     downGrid[y][x] = bomb;
     bombs[y][x] = true;
+
   }
 }
 
@@ -211,7 +216,7 @@ function setnumber() {
 
 function gameSituationSovling() {
   
-  if (flags === bombs) {
+  if (bombsNums === 0) {
     gameSituation = "won";
   }
 
@@ -251,7 +256,7 @@ function gameSituationSovling() {
     textStyle(BOLD);
     textAlign(CENTER, CENTER);
     text("You typed Enter!", width / 2 - startX, height / 2 - startY);
-    text(instruction, width / 2 - startX, height / 2 - startY + 60);
+    text(instruction.join(''), width / 2 - startX, height / 2 - startY + 60);
   }
 }
 
@@ -276,16 +281,15 @@ function mousePressed() {
   let x = floor((mouseX - startX) / BLOCK_SIZE);
   let y = floor((mouseY - startY) / BLOCK_SIZE);
 
-  if (!ifclickwork(x,y)){
-    return;
-  }
-
   if (x >= 0 && x < cols && y >= 0 && y < rows) {
     if (mouseButton === LEFT) {
       if (flags[y][x]!==true){
         if (firstClick){
           for (let j = -1; j <= 1; j++) {
             for (let i = -1; i <= 1; i++) {
+              if (downGrid[y+j][x+i] === bomb){
+                bombsNums--;
+              }
               downGrid[y+j][x+i]=0;
             }
           }
@@ -294,42 +298,50 @@ function mousePressed() {
         }
         upGrid[y][x] = 0;
         clearBeside(x, y);
-        console.log(x,y);
       }
     }
     if (mouseButton === RIGHT) {
       if(upGrid[y][x] === 1){
         flags[y][x] = !flags[y][x];
-      }
-    }
-    if (mouseButton === doubleClicked) {
-      let numFlags = 0;
-      for (let j = -1; j <= 1; j++) {
-        for (let i = -1; i <= 1; i++) {
-          if (x + i >= 0 && x + i < cols && y + j >= 0 && y + j < rows) {
-            if (flags[y+j][x+i] === true){
-              numFlags++;
-            }
+        if (downGrid[y][x] === bomb){
+          if (flags[y][x] === true){
+            bombsNums--;
+          }
+          else {
+            bombsNums++;
           }
         }
       }
-      
-      if (numFlags === downGrid[y][x]){
-        for (let j = -1; j <= 1; j++) {
-          for (let i = -1; i <= 1; i++) {
-            if (x + i >= 0 && x + i < cols && y + j >= 0 && y + j < rows) {
-              if (flags[y+j][x+i] === false){
-                upGrid[y+j][x+i] = 0;
-                clearBeside(x+i, y+j);
-                if (downGrid[y+j][x+i] === bomb) {
-                  gameSituation = "lost";
-                }
-              }
-            }
-          }       
-        }
-      }
+      console.log(bombsNums);
     }
+    // if (mouseButton === doubleClicked) {
+    //   let numFlags = 0;
+    //   for (let j = -1; j <= 1; j++) {
+    //     for (let i = -1; i <= 1; i++) {
+    //       if (x + i >= 0 && x + i < cols && y + j >= 0 && y + j < rows) {
+    //         if (flags[y+j][x+i] === true){
+    //           numFlags++;
+    //         }
+    //       }
+    //     }
+    //   }
+      
+    //   if (numFlags === downGrid[y][x]){
+    //     for (let j = -1; j <= 1; j++) {
+    //       for (let i = -1; i <= 1; i++) {
+    //         if (x + i >= 0 && x + i < cols && y + j >= 0 && y + j < rows) {
+    //           if (flags[y+j][x+i] === false){
+    //             upGrid[y+j][x+i] = 0;
+    //             clearBeside(x+i, y+j);
+    //             if (downGrid[y+j][x+i] === bomb) {
+    //               gameSituation = "lost";
+    //             }
+    //           }
+    //         }
+    //       }       
+    //     }
+    //   }
+    // }
   }
 }
 
@@ -351,30 +363,21 @@ function clearBeside(x, y) {
   }
 }
 
-function ifclickwork(x,y){
-  return x >= 0 && x < cols && y >= 0 && y < rows &&
-         upGrid[y][x] === 1 && flags[y][x] === false&&
-         gameSituation === "playing";
-}
 
 function keyPressed() {
-  if (key === 'r' || key === 'R'&& gameSituation !== "typed") {
+  if ((key === 'r' || key === 'R')&& gameSituation !== "typed") {
     downGrid = [];
     upGrid = [];
     createUpGrid();
     createdownGrid();
     createFlag();
-    bombsNums = 100;
+    bombsNums = 10;
     firstClick = true;
     gameSituation = "playing";
   }
 
-  if (key === 'b' || key === 'B' && gameSituation === "playing") {
-    downGrid[floor((mouseY - startY) / BLOCK_SIZE)][floor((mouseX - startX) / BLOCK_SIZE)] = bomb;
-  }
-
   // use enter to change variable in game
-  if (key === 'Enter') {
+  if (key === 'Enter' && gameSituation !== "typed") {
     gameSituation = "typed";
   }
   if (gameSituation === "typed") {
@@ -384,6 +387,44 @@ function keyPressed() {
     if (key === 'Backspace') {
       instruction.pop();
     }
+    if (key === 'Enter'&& instruction.length > 0) {
+      if (instruction.join('') === "reset") {
+        resetGame();
+        instruction = [];
+        gameSituation = "playing";
+      }
+      for (let i = 0; i < instruction.length-4; i++) {
+        if (instruction[i] === "r"&& 
+          instruction[i+1] === "o"&&
+          instruction[i+2] === "w"&&
+          instruction[i+3] === "s"&&
+          instruction[i+4] !== undefined) {
+          rows = Number(instruction[i+4]);
 
+          resetGame();
+          
+        }
+      }
+    }
   }
+}
+
+function resetGame() {
+  startX = width / 2 - cols * BLOCK_SIZE / 2;
+  startY = height / 2 - rows * BLOCK_SIZE / 2;
+  downGrid = [];
+  upGrid = [];
+  createUpGrid();
+  createdownGrid();
+  createFlag();
+  bombsNums = 10;
+  firstClick = true;
+  instruction = [];
+  gameSituation = "playing";
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  startX = width / 2 - cols * BLOCK_SIZE / 2;
+  startY = height / 2 - rows * BLOCK_SIZE / 2;
 }
