@@ -9,7 +9,8 @@ const BLOCK_SIZE = 40;
 const UNEXPOSED = 0;
 const EXPOSED = 1;
 const bomb = true;
-const readableChars = "qwertyuiopasdfghjklzxcvbnm1234567890";
+
+
 let cols;
 let rows;
 let bombsNums = 10;
@@ -22,11 +23,31 @@ let bombs = [];
 let flags = [];
 let flagImg;
 let bombImg;
-let instruction = [];
+
 
 let firstClick = true;
 let numsOfExposedBombs = 0;
 let gameSituation = "playing";
+
+let instruction = [];
+const readableChars = "qwertyuiopasdfghjklzxcvbnm1234567890";
+const instructionisRows = instruction[0] === "r"&& 
+                        instruction[1] === "o"&&
+                        instruction[2] === "w"&&
+                        instruction[3] === "s";
+const instructionisCols = instruction[0] === "c"&&
+                        instruction[1] === "o"&&
+                        instruction[2] === "l"&&
+                        instruction[3] === "s";
+const instructionisBombs = instruction[0] === "b"&&
+                        instruction[1] === "o"&&
+                        instruction[2] === "m"&&
+                        instruction[3] === "b"&&
+                        instruction[4] === "s";
+const instructionisEasy = instruction.join('') === "easy";
+const instructionisMedium = instruction.join('') === "medium";
+const instructionisHard = instruction.join('') === "hard";
+                        
 
 function preload() {
   flagImg = loadImage("assets/flag.png");
@@ -39,8 +60,8 @@ function setup() {
   // I found this in other people's code
   document.addEventListener('contextmenu', event => event.preventDefault());
 
-  cols = 5;
-  rows = 5;
+  cols = 10;
+  rows = 10;
   startX = width / 2 - cols * BLOCK_SIZE / 2;
   startY = height / 2 - rows * BLOCK_SIZE / 2;
 
@@ -67,12 +88,16 @@ function setBackground(){
 }
 
 function textBackground(){
+  push();
+  fill(255, 255, 255, 200);
+  rect(-startX, -startY, width, 100);
   textSize(20);
   textStyle(BOLD);
   textAlign(LEFT, TOP);
   fill(0);
   text("Press 'R' to reset the game", -10,-10);
   text("Press 'Enter' to type something", 10, 70);
+  pop();
 }
 
 function createUpGrid() {
@@ -236,6 +261,7 @@ function gameSituationSovling() {
     textStyle(BOLD);
     textAlign(CENTER, CENTER);
     text("You Win!", width / 2 - startX, height / 2 - startY);
+    victoryFireworks_3D();
   }
 
   else if (gameSituation === "lost") {
@@ -388,25 +414,50 @@ function keyPressed() {
       instruction.pop();
     }
     if (key === 'Enter'&& instruction.length > 0) {
+      console.log(instruction.join(''));
       if (instruction.join('') === "reset") {
         resetGame();
         instruction = [];
         gameSituation = "playing";
       }
-      for (let i = 0; i < instruction.length-4; i++) {
-        if (instruction[i] === "r"&& 
-          instruction[i+1] === "o"&&
-          instruction[i+2] === "w"&&
-          instruction[i+3] === "s"&&
-          instruction[i+4] !== undefined) {
-          rows = Number(instruction[i+4]);
 
-          resetGame();
-          
-        }
+      else if (instructionisEasy) {
+        rows = 10;
+        cols = 10;
+        bombsNums = 20;
+        console.log(instructionisEasy);
+        resetGame();
+        
       }
+      else if (instructionisMedium) {
+        rows = 15;
+        cols = 15;
+        bombsNums = 40;
+        resetGame();
+      }
+      else if (instructionisHard) {
+        rows = 20;
+        cols = 20;
+        bombsNums = 80;
+        resetGame();
+      }
+      
     }
   }
+}
+
+function victoryFireworks_3D() {
+  push();
+  translate(width / 2 - startX, height / 2 - startY); 
+  for (let i = 0; i < 100; i++) {
+    let angle = random(TWO_PI);
+    let radius = random(50, 150);
+    let x = cos(angle) * radius;
+    let y = sin(angle) * radius;
+    fill(random(255), random(255), random(255));
+    ellipse(x, y, 10, 10);
+  }
+  pop();
 }
 
 function resetGame() {
