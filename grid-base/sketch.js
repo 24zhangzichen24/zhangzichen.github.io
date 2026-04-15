@@ -6,16 +6,6 @@
 // Ask the user for the number of rows, columns, and bombs.
 
 const BLOCK_SIZE = 40;
-<<<<<<< HEAD
-const UNEXPOSED = 0;
-const EXPOSED = 1;
-const bomb = true;
-
-
-let cols;
-let rows;
-let bombsNums = 10;
-=======
 const UNEXPOSED = 1;
 const EXPOSED = 0;
 const BOMB = true;
@@ -27,7 +17,6 @@ let totalBombs = 10;
 let currentBombCount = 0;
 let bombsLeft = totalBombs;
 
->>>>>>> 53dd351201a4be1f14ac28b03d8d6838b1a5a1f3
 let startX;
 let startY;
 
@@ -71,15 +60,8 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   stroke(100);
 
-<<<<<<< HEAD
-  cols = 10;
-  rows = 10;
-  startX = width / 2 - cols * BLOCK_SIZE / 2;
-  startY = height / 2 - rows * BLOCK_SIZE / 2;
-=======
   // Disable the browser right-click menu so right click can be used for flags.
   document.addEventListener("contextmenu", event => event.preventDefault());
->>>>>>> 53dd351201a4be1f14ac28b03d8d6838b1a5a1f3
 
   resetGame();
 }
@@ -108,27 +90,14 @@ function setBackground() {
   rect(0, 0, cols * BLOCK_SIZE, rows * BLOCK_SIZE);
 }
 
-<<<<<<< HEAD
-function textBackground(){
-  push();
-  fill(255, 255, 255, 200);
-  rect(-startX, -startY, width, 100);
-=======
 function textBackground() {
->>>>>>> 53dd351201a4be1f14ac28b03d8d6838b1a5a1f3
   textSize(20);
   textStyle(BOLD);
   textAlign(LEFT, TOP);
   fill(0);
-<<<<<<< HEAD
-  text("Press 'R' to reset the game", -10,-10);
-  text("Press 'Enter' to type something", 10, 70);
-  pop();
-=======
   text("Press 'R' to reset the game", 10, 10);
   text("Press 'Enter' to type a command", 10, 40);
   text(`Rows: ${rows}  Cols: ${cols}  Bombs: ${currentBombCount}  Bombs left: ${bombsLeft}`, 10, 70);
->>>>>>> 53dd351201a4be1f14ac28b03d8d6838b1a5a1f3
 }
 
 function createUpGrid() {
@@ -308,12 +277,7 @@ function gameSituationSolving() {
     textSize(50);
     textStyle(BOLD);
     textAlign(CENTER, CENTER);
-<<<<<<< HEAD
-    text("You Win!", width / 2 - startX, height / 2 - startY);
-    victoryFireworks_3D();
-=======
     text("You Win!", width / 2, height / 2);
->>>>>>> 53dd351201a4be1f14ac28b03d8d6838b1a5a1f3
   }
   else if (gameSituation === "lost") {
     fill(255, 0, 0, 150);
@@ -458,71 +422,13 @@ function keyPressed() {
     if (key === "Backspace") {
       instruction.pop();
     }
-<<<<<<< HEAD
-    if (key === 'Enter'&& instruction.length > 0) {
-      console.log(instruction.join(''));
-      if (instruction.join('') === "reset") {
-        resetGame();
-        instruction = [];
-        gameSituation = "playing";
-      }
-
-      else if (instructionisEasy) {
-        rows = 10;
-        cols = 10;
-        bombsNums = 20;
-        console.log(instructionisEasy);
-        resetGame();
-        
-      }
-      else if (instructionisMedium) {
-        rows = 15;
-        cols = 15;
-        bombsNums = 40;
-        resetGame();
-      }
-      else if (instructionisHard) {
-        rows = 20;
-        cols = 20;
-        bombsNums = 80;
-        resetGame();
-      }
-      
-=======
 
     if (key === "Enter") {
       runTypedCommand(instruction.join(""));
->>>>>>> 53dd351201a4be1f14ac28b03d8d6838b1a5a1f3
     }
   }
 }
 
-<<<<<<< HEAD
-function victoryFireworks_3D() {
-  push();
-  translate(width / 2 - startX, height / 2 - startY); 
-  for (let i = 0; i < 100; i++) {
-    let angle = random(TWO_PI);
-    let radius = random(50, 150);
-    let x = cos(angle) * radius;
-    let y = sin(angle) * radius;
-    fill(random(255), random(255), random(255));
-    ellipse(x, y, 10, 10);
-  }
-  pop();
-}
-
-function resetGame() {
-  startX = width / 2 - cols * BLOCK_SIZE / 2;
-  startY = height / 2 - rows * BLOCK_SIZE / 2;
-  downGrid = [];
-  upGrid = [];
-  createUpGrid();
-  createdownGrid();
-  createFlag();
-  bombsNums = 10;
-  firstClick = true;
-=======
 function runTypedCommand(command) {
   if (command === "reset") {
     resetGame();
@@ -556,7 +462,6 @@ function runTypedCommand(command) {
     }
   }
 
->>>>>>> 53dd351201a4be1f14ac28b03d8d6838b1a5a1f3
   instruction = [];
   gameSituation = "playing";
 }

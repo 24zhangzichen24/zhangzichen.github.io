@@ -36,19 +36,20 @@ class Walker {
   }
 }
 
-let harjot;
-let mitt;
+let theWalkers = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  harjot = new Walker(width/2, height/2);
-  mitt = new Walker(300, 500);
 }
 
 function draw() {
-  harjot.display();
-  mitt.display();
-  
-  harjot.move();
-  mitt.move();
+  for (aWalker of theWalkers) {
+    aWalker.move();
+    aWalker.display();
+  }
+}
+
+function mousePressed() {
+  let someWalker = new Walker(mouseX, mouseY);
+  theWalkers.push(someWalker);  
 }
