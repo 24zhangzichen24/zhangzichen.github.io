@@ -11,6 +11,7 @@
 - [Rectangular grid](08-rect-grid)
 - [Charactor](10-charactor)
 - [Walker OOP Demo](12-walker)
+- [Firework](13-firework)
 
 ## Assignments
 -[Interactive](interactive-sence)

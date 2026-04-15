@@ -9,11 +9,11 @@ const BLOCK_SIZE = 40;
 const UNEXPOSED = 1;
 const EXPOSED = 0;
 const BOMB = true;
-const READABLE_CHARS = "qwertyuiopasdfghjklzxcvbnm1234567890";
+const READABLE_CHARS = "qwertyuiopasdfghjklzxcvbnm1234567890";// For typing commands.
 
 let cols = 5;
 let rows = 5;
-let totalBombs = 10;
+let totalBombs = 5;
 let currentBombCount = 0;
 let bombsLeft = totalBombs;
 
@@ -67,7 +67,7 @@ function setup() {
 }
 
 function draw() {
-  background(220);
+  background('gray');
   drawBoard();
   gameSituationSolving();
   textBackground();
@@ -324,7 +324,6 @@ function countNeighborBombs(x, y) {
       let newX = x + i;
       let newY = y + j;
 
-      // Only count neighbors that stay inside the board.
       if (newX >= 0 && newX < cols && newY >= 0 && newY < rows) {
         if (bombs[newY][newX]) {
           count++;
@@ -341,7 +340,6 @@ function mousePressed() {
     return;
   }
 
-  // Convert mouse position on the screen into grid coordinates.
   let x = floor((mouseX - startX) / BLOCK_SIZE);
   let y = floor((mouseY - startY) / BLOCK_SIZE);
 
@@ -435,6 +433,30 @@ function runTypedCommand(command) {
     return;
   }
 
+  if (command === "easy") {
+    rows = 5;
+    cols = 5;
+    totalBombs = 5;
+    resetGame();
+    return;
+  }
+
+  if (command === "medium") {
+    rows = 10;
+    cols = 10;
+    totalBombs = 20;
+    resetGame();
+    return;
+  }
+
+  if (command === "hard") {
+    rows = 15;
+    cols = 15;
+    totalBombs = 40;
+    resetGame();
+    return;
+  }
+
   if (command.startsWith("rows")) {
     let value = Number(command.slice(4));
     if (!Number.isNaN(value) && value > 0) {
@@ -479,7 +501,6 @@ function resetGame() {
 }
 
 function updateBoardPosition() {
-  // Center the board: half of canvas width minus half of board width.
   startX = width / 2 - cols * BLOCK_SIZE / 2;
   startY = height / 2 - rows * BLOCK_SIZE / 2;
 }
