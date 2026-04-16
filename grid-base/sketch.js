@@ -3,79 +3,61 @@
 // 3/24/2026
 //
 // Extra for Experts:
-// Ask the user for the number of rows, columns, and bombs.
+// functions to sovle strings and interpret them as commands.
 
 const BLOCK_SIZE = 40;
 const UNEXPOSED = 1;
 const EXPOSED = 0;
 const BOMB = true;
-const READABLE_CHARS = "qwertyuiopasdfghjklzxcvbnm1234567890";// For typing commands.
+const READABLE_CHARS = "qwertyuiopasdfghjklzxcvbnm1234567890";
 
 let cols = 5;
 let rows = 5;
-let totalBombs = 5;
+let totalBombs = 10;
 let currentBombCount = 0;
 let bombsLeft = totalBombs;
 
 let startX;
 let startY;
 
-let downGrid = []; // Stores bombs and numbers underneath
-let upGrid = [];   // Stores whether a block is still covered
-let bombs = [];    // Stores bomb positions only
+let downGrid = [];
+let upGrid = [];
+let bombs = [];
 let flags = [];
 let flagImg;
 let bombImg;
-
+let instruction = [];
 
 let firstClick = true;
 let gameSituation = "playing";
 
-let instruction = [];
-const readableChars = "qwertyuiopasdfghjklzxcvbnm1234567890";
-const instructionisRows = instruction[0] === "r"&& 
-                        instruction[1] === "o"&&
-                        instruction[2] === "w"&&
-                        instruction[3] === "s";
-const instructionisCols = instruction[0] === "c"&&
-                        instruction[1] === "o"&&
-                        instruction[2] === "l"&&
-                        instruction[3] === "s";
-const instructionisBombs = instruction[0] === "b"&&
-                        instruction[1] === "o"&&
-                        instruction[2] === "m"&&
-                        instruction[3] === "b"&&
-                        instruction[4] === "s";
-const instructionisEasy = instruction.join('') === "easy";
-const instructionisMedium = instruction.join('') === "medium";
-const instructionisHard = instruction.join('') === "hard";
-                        
-
+// Loads image assets before the game starts.
 function preload() {
   flagImg = loadImage("assets/flag.png");
   bombImg = loadImage("assets/bomb.png");
 }
 
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   stroke(100);
-
-  // Disable the browser right-click menu so right click can be used for flags.
+  // Prevents the right-click context menu from appearing when placing flags.
   document.addEventListener("contextmenu", event => event.preventDefault());
 
   resetGame();
 }
 
+
 function draw() {
-  background('gray');
+  background(220);
   drawBoard();
   gameSituationSolving();
   textBackground();
 }
 
+// Draws the full board at its centered screen position.
 function drawBoard() {
   push();
-  // Move the whole board so it stays centered on the screen.
   translate(startX, startY);
   setBackground();
   displayDownGrid();
@@ -85,11 +67,13 @@ function drawBoard() {
   pop();
 }
 
+
 function setBackground() {
   fill(170);
   rect(0, 0, cols * BLOCK_SIZE, rows * BLOCK_SIZE);
 }
 
+// Displays the instruction text and current game information.
 function textBackground() {
   textSize(20);
   textStyle(BOLD);
@@ -100,8 +84,10 @@ function textBackground() {
   text(`Rows: ${rows}  Cols: ${cols}  Bombs: ${currentBombCount}  Bombs left: ${bombsLeft}`, 10, 70);
 }
 
+// Creates the top grid that tracks which cells are still covered.
 function createUpGrid() {
   upGrid = [];
+
   for (let y = 0; y < rows; y++) {
     let row = [];
     for (let x = 0; x < cols; x++) {
@@ -111,6 +97,7 @@ function createUpGrid() {
   }
 }
 
+// Creates the bottom grid that stores bombs and numbers.
 function createDownGrid() {
   downGrid = [];
   bombs = [];
@@ -118,17 +105,21 @@ function createDownGrid() {
   for (let y = 0; y < rows; y++) {
     let row = [];
     let bombRow = [];
+
     for (let x = 0; x < cols; x++) {
       row.push(0);
       bombRow.push(false);
     }
+
     downGrid.push(row);
     bombs.push(bombRow);
   }
 }
 
+// Creates the grid that tracks which cells have flags.
 function createFlag() {
   flags = [];
+
   for (let y = 0; y < rows; y++) {
     flags[y] = [];
     for (let x = 0; x < cols; x++) {
@@ -137,6 +128,7 @@ function createFlag() {
   }
 }
 
+// Draws a flag image on every flagged cell.
 function displayFlag() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
@@ -147,6 +139,7 @@ function displayFlag() {
   }
 }
 
+// Draws the covered blocks that the player has not opened yet.
 function displayUpGrid() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
@@ -157,6 +150,7 @@ function displayUpGrid() {
   }
 }
 
+// Draws the grid lines over the board.
 function setCrossLines() {
   strokeWeight(2);
   stroke(20);
@@ -170,6 +164,7 @@ function setCrossLines() {
   }
 }
 
+// Randomly places bombs while keeping the first clicked area safe.
 function placeBombs(safeX, safeY) {
   let safeCellCount = 0;
 
@@ -181,7 +176,6 @@ function placeBombs(safeX, safeY) {
     }
   }
 
-  // The board cannot hold more bombs than the number of non-safe cells.
   currentBombCount = min(totalBombs, cols * rows - safeCellCount);
   bombsLeft = currentBombCount;
 
@@ -200,11 +194,12 @@ function placeBombs(safeX, safeY) {
   }
 }
 
+// Checks whether a cell is inside the safe zone around the first click.
 function isInSafeZone(x, y, safeX, safeY) {
-  // Keep the first clicked cell and its surrounding 3x3 area safe.
   return abs(x - safeX) <= 1 && abs(y - safeY) <= 1;
 }
 
+// Draws one covered Minesweeper block with a beveled style.
 function singleBlock(x, y) {
   noStroke();
   fill(190);
@@ -237,6 +232,7 @@ function singleBlock(x, y) {
   );
 }
 
+// Draws the bottom layer, including bombs and number clues.
 function displayDownGrid() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
@@ -254,6 +250,7 @@ function displayDownGrid() {
   }
 }
 
+// Calculates and stores the number clue for every non-bomb cell.
 function setNumber() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
@@ -265,6 +262,7 @@ function setNumber() {
   }
 }
 
+// Checks the current game state and shows the correct end screen.
 function gameSituationSolving() {
   if (gameSituation === "playing" && checkWin()) {
     gameSituation = "won";
@@ -300,13 +298,13 @@ function gameSituationSolving() {
   }
 }
 
+// Returns true when all safe cells have been exposed.
 function checkWin() {
   let exposedSafeBlocks = 0;
   let totalSafeBlocks = cols * rows - currentBombCount;
 
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
-      // Winning means every non-bomb block has been opened.
       if (!bombs[y][x] && upGrid[y][x] === EXPOSED) {
         exposedSafeBlocks++;
       }
@@ -316,6 +314,7 @@ function checkWin() {
   return exposedSafeBlocks === totalSafeBlocks;
 }
 
+// Counts how many bombs are in the eight neighboring cells.
 function countNeighborBombs(x, y) {
   let count = 0;
 
@@ -335,6 +334,7 @@ function countNeighborBombs(x, y) {
   return count;
 }
 
+// Handles left click to reveal cells and right click to place flags.
 function mousePressed() {
   if (gameSituation !== "playing") {
     return;
@@ -380,6 +380,7 @@ function mousePressed() {
   }
 }
 
+// Recursively opens nearby cells when the player clicks an empty cell.
 function clearBeside(x, y) {
   if (downGrid[y][x] !== "") {
     return;
@@ -400,6 +401,7 @@ function clearBeside(x, y) {
   }
 }
 
+// Handles keyboard controls for reset and typed command mode.
 function keyPressed() {
   if ((key === "r" || key === "R") && gameSituation !== "typed") {
     resetGame();
@@ -427,32 +429,9 @@ function keyPressed() {
   }
 }
 
+// Interprets typed commands and applies game setting changes.
 function runTypedCommand(command) {
   if (command === "reset") {
-    resetGame();
-    return;
-  }
-
-  if (command === "easy") {
-    rows = 5;
-    cols = 5;
-    totalBombs = 5;
-    resetGame();
-    return;
-  }
-
-  if (command === "medium") {
-    rows = 10;
-    cols = 10;
-    totalBombs = 20;
-    resetGame();
-    return;
-  }
-
-  if (command === "hard") {
-    rows = 15;
-    cols = 15;
-    totalBombs = 40;
     resetGame();
     return;
   }
@@ -488,6 +467,7 @@ function runTypedCommand(command) {
   gameSituation = "playing";
 }
 
+// Resets all game data and starts a fresh board.
 function resetGame() {
   updateBoardPosition();
   createUpGrid();
