@@ -7,12 +7,13 @@ class Particle {
     this.y= y;
     this.color = color(random(255), random(255), random(255));
     this.size = random(2, 10);
-    this.speed= random(5);
+    this.speed= random(4,5);
     this.angle = random(TWO_PI);
     this.dx = cos(this.angle) * this.speed;
     this.dy = sin(this.angle) * this.speed;
     this.GRAVITY = 0.1;
     this.resistance = 0.99; // Simulate air resistance
+    this.strokeWeight = this.size / 2; // Initial stroke weight based on size
   }
 
   display() {
@@ -21,6 +22,7 @@ class Particle {
     circle(this.x, this.y, this.size);
     // lightning tails    
     stroke(this.color);
+    strokeWeight(this.strokeWeight);
     line(this.x, this.y, this.x - this.dx * 5, this.y - this.dy * 5);
   }
 
@@ -31,11 +33,16 @@ class Particle {
     this.dx *= this.resistance; // Apply air resistance
     this.dy *= this.resistance; // Apply air resistance
     this.size *= 0.97; // Shrink over time
+    this.strokeWeight *= 0.97; // Shrink stroke weight over time
+  }
+
+  isDead() {
+    return this.size < 0.5;
   }
 }
 
 let fireworks = [];
-const NUM_PARTICLES = 1000;
+const NUM_PARTICLES = 400;
 const GRAVITY = 1;
 
 function setup() {
@@ -48,7 +55,7 @@ function draw() {
   for (let firework of fireworks) {
     firework.update();
     firework.display();
-    if (firework.size < 0.5) {
+    if (firework.isDead()) {
       fireworks.splice(fireworks.indexOf(firework), 1); // Remove small particles
     }
   }
