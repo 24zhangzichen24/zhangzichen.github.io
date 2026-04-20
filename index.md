@@ -13,6 +13,7 @@
 - [Walker OOP Demo](12-walker)
 - [Firework](13-firework)
 - [Ball Collision](14-ball-collision) 
+- [Connected Nodes OOP](15-connected-nodes)
 
 ## Assignments
 -[Interactive](interactive-sence)
